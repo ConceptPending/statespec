@@ -1,11 +1,28 @@
 # The policy artifact: a versioned contract
 
-**Frozen:** the kernel and this contract are frozen as of tag `statespec-v0.3.0`
-(2026-06-10, `schema_version: 2`). Changes are limited to genuine bugs, security
-issues, or contract defects found while integrating the control plane. The next
-envelope change bumps `schema_version` and the kernel tag together.
+**Authoritative home:** this repository (`ConceptPending/statespec`) as of
+`statespec-v0.4.0`. The copy in `baseplate` is frozen at v0.3.0 alongside its
+reference example.
 
-`make spec-doc` writes `docs/specs/<name>.policy.json` for every lifecycle spec.
+**Changelog:**
+
+- `statespec-v0.3.0` (2026-06-10, baseplate `2aca24e`) — kernel freeze;
+  envelope `schema_version: 2` (`semantic_digest` + `presentation_digest`).
+- `statespec-v0.4.0` (2026-07-03, this repo) — `spec` gains `title`. Both
+  digests and `schema_version: 2` are **unchanged** (`title` never enters the
+  semantic projection; the presentation projection already hashed it). Fixes a
+  contract defect found while integrating the control plane: previously
+  `presentation_digest` hashed `spec.title` but the artifact omitted it, so the
+  digest was not independently verifiable and `diff()` could not describe a
+  title change. Consumers may now verify `presentation_digest` from the
+  artifact alone whenever `"title" in spec`.
+
+**Freeze discipline:** changes are limited to genuine bugs, security issues, or
+contract defects. The next envelope change bumps `schema_version` and the
+kernel tag together.
+
+In a consuming repo, `make spec-doc` (or equivalent) writes
+`docs/specs/<name>.policy.json` for every lifecycle spec.
 This file is the **stable, machine-readable contract** an external consumer (a
 control plane, a policy-review GitHub App, an auditor tool) reads. This document
 defines it so that contract can be relied on across repos and over time.
@@ -28,6 +45,7 @@ that makes it the *candidate* policy, not the *authorised* one.
   "presentation_digest": "a5765188d595…", // sha256 over wording — tracked, non-invalidating
   "spec": {                             // the canonical, content-only spec
     "name": "submission",
+    "title": "Submission moderation",   // added in v0.4.0 (presentation; not in the semantic hash)
     "version": 1,
     "states": { "pending": "…", "approved": "…", … },
     "initial": "pending",

@@ -93,6 +93,43 @@ def test_opaque_source_is_hashed_into_identity():
     assert any("opaque body/version changed" in line for line in lines)
 
 
+def test_title_is_presentation_only_and_diffed():
+    """v0.4.0: title lives in canonical(), so a title edit is classified as a
+    presentation change AND describable by diff() — not just detectable."""
+    a = _spec()
+    b = StateSpec(
+        name="t", title="renamed workflow",
+        states={"a": "", "b": ""},
+        fields={"n": "int"}, initial="a", terminal=frozenset({"b"}),
+        transitions=a.transitions, invariants=a.invariants, version=1,
+    )
+    assert "title" in identity.canonical(a)
+    assert identity.semantic_digest(a) == identity.semantic_digest(b)
+    assert identity.presentation_digest(a) != identity.presentation_digest(b)
+    assert identity.change_kind(identity.policy_record(a), identity.policy_record(b)) \
+        == "presentation"
+    lines = identity.diff(identity.canonical(a), identity.canonical(b))
+    assert lines == ["title: 't' → 'renamed workflow'"]
+    # a pre-v0.4.0 canonical (no title key) still diffs cleanly
+    old = identity.canonical(a)
+    del old["title"]
+    assert identity.diff(old, identity.canonical(a)) == ["title: None → 't'"]
+
+
+def test_presentation_digest_verifiable_from_artifact():
+    """The v0.4.0 point: a consumer can recompute presentation_digest from the
+    artifact's `spec` payload alone, with no access to the source StateSpec."""
+    record = identity.policy_record(_spec(control_id="GO-1", label="go label"))
+    c = record["spec"]
+    recomputed = identity._sha256({
+        "title": c["title"],
+        "states": c["states"],
+        "transitions": [{"id": t["id"], "label": t["label"]} for t in c["transitions"]],
+        "invariants": [{"id": i["id"], "label": i["label"]} for i in c["invariants"]],
+    })
+    assert recomputed == record["presentation_digest"]
+
+
 def test_diff_state_and_invariant_changes():
     a = _spec(states=("a", "b"))
     b = _spec(states=("a", "b", "c"),

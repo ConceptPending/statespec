@@ -54,11 +54,15 @@ def _guard_dict(node):
 
 
 def canonical(spec: StateSpec) -> dict:
-    """Deterministic, content-only representation. Labels/descriptions are
-    included (a reworded policy is a changed policy), but rendered text is not
-    (it's derivable). Keyed and sorted so the form is stable."""
+    """Deterministic, content-only representation. Title, labels and
+    descriptions are included (a reworded policy is a changed policy), but
+    rendered text is not (it's derivable). Keyed and sorted so the form is
+    stable. `title` was added in statespec-v0.4.0 so the presentation digest
+    is independently verifiable from the artifact alone; it never enters the
+    semantic projection, so digest bindings are unaffected."""
     return {
         "name": spec.name,
+        "title": spec.title,
         "version": spec.version,
         "states": {s: d for s, d in sorted(spec.states.items())},
         "initial": spec.initial,
@@ -144,7 +148,7 @@ def presentation_canonical(spec: StateSpec) -> dict:
     id, so a reword is detectable and attributable without touching behaviour."""
     c = canonical(spec)
     return {
-        "title": spec.title,
+        "title": c["title"],  # from the canonical form: verifiable from the artifact
         "states": c["states"],  # id -> description
         "transitions": [{"id": t["id"], "label": t["label"]} for t in c["transitions"]],
         "invariants": [{"id": i["id"], "label": i["label"]} for i in c["invariants"]],
@@ -209,6 +213,10 @@ def diff(old: dict, new: dict) -> list[str]:
 
     if old.get("version") != new.get("version"):
         out.append(f"version: {old.get('version')} → {new.get('version')}")
+
+    # .get(): canonical dicts from kernels < v0.4.0 carry no title key.
+    if old.get("title") != new.get("title"):
+        out.append(f"title: {old.get('title')!r} → {new.get('title')!r}")
 
     old_states, new_states = set(old["states"]), set(new["states"])
     for s in sorted(new_states - old_states):

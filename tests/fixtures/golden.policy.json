@@ -1,0 +1,87 @@
+{
+  "presentation_digest": "8de54c0146327e02f9129111f55fa024c93b6cb07e098fc181f4fc3dca358465",
+  "schema_version": 2,
+  "semantic_digest": "d383ebc3fcebc18b71f2c05dcc1c472b01d06b304c45e81dcc3dd379971ab8c1",
+  "spec": {
+    "fields": {
+      "amount": "decimal",
+      "errors": "int"
+    },
+    "initial": "draft",
+    "invariants": [
+      {
+        "condition": {
+          "kind": "compare",
+          "left": {
+            "kind": "field",
+            "name": "amount"
+          },
+          "op": "ge",
+          "right": {
+            "kind": "literal",
+            "type": "int",
+            "value": 0
+          }
+        },
+        "id": "GOLD-INV-1",
+        "label": "Amount never negative",
+        "name": "non_negative",
+        "opaque": {}
+      }
+    ],
+    "name": "golden",
+    "states": {
+      "done": "Closed out",
+      "draft": "Being written",
+      "review": "Awaiting review"
+    },
+    "terminal": [
+      "done"
+    ],
+    "title": "Golden fixture workflow",
+    "transitions": [
+      {
+        "from": [
+          "review"
+        ],
+        "guard": null,
+        "id": "GOLD-APPROVE",
+        "label": "Approve",
+        "name": "approve",
+        "opaque": {},
+        "roles": [
+          "reviewer"
+        ],
+        "to": "done"
+      },
+      {
+        "from": [
+          "draft"
+        ],
+        "guard": {
+          "kind": "compare",
+          "left": {
+            "kind": "field",
+            "name": "errors"
+          },
+          "op": "le",
+          "right": {
+            "kind": "literal",
+            "type": "int",
+            "value": 0
+          }
+        },
+        "id": "GOLD-SUBMIT",
+        "label": "Submit for review",
+        "name": "submit",
+        "opaque": {},
+        "roles": [
+          "author"
+        ],
+        "to": "review"
+      }
+    ],
+    "version": 1
+  },
+  "spec_version": 1
+}
