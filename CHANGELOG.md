@@ -3,6 +3,16 @@
 Kernel tag series: `statespec-vX.Y.Z`. Contract changes are also recorded in
 `docs/policy-artifact-contract.md`.
 
+## 0.4.1 — tag `statespec-v0.4.1` (2026-07-08)
+
+Presentation-tooling only; canonicalisation, digests, and the artifact
+contract are untouched. `render.to_markdown_doc` gains `regenerate_hint` /
+`source_hint` keyword args so the generated doc's header names the consuming
+repo's actual regeneration command and spec path (defaults preserve the
+previous baseplate-layout output). The invariants preamble now *recommends* a
+property-based suite instead of asserting one exists in the consuming repo.
+Adds `tests/test_render.py`.
+
 ## 0.4.0 — tag `statespec-v0.4.0` (2026-07-03)
 
 Contract-defect fix (freeze exception): `canonical()` now includes `title`, so

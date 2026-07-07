@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "statespec"
-version = "0.4.0"
+version = "0.4.1"
 description = "Declarative lifecycle state-machine specs: one enforcement path, policy identity digests, semantic diffs"
 readme = "README.md"
 license = "MIT"
