@@ -110,9 +110,10 @@ that makes it the *candidate* policy, not the *authorised* one.
 - `schema_version` versions the **envelope/format**. Bump it only when this
   shape changes; a consumer keys its parser off it.
 - `spec_version` is the **policy's** author-asserted version. Bump it when the
-  **`semantic_digest`** changes. `statespec.py diff <name>` warns if the
-  semantic digest changed but the version did not; a wording-only change does
-  not require a bump.
+  **`semantic_digest`** changes. `identity.diff` names the change; consuming
+  repos typically add a CI check that warns when the semantic digest changed
+  but the version did not (baseplate's `scripts/statespec.py diff` is the
+  reference). A wording-only change does not require a bump.
 - The two are independent: a format migration doesn't touch policy versions, and
   a policy change doesn't touch the format version.
 
